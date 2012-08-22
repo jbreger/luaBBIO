@@ -39,7 +39,7 @@ digitalPinDef={
 	"P8.46"=71,
 	"P9.12"=60,
 	"P9.15"=48,
-	"P9.23"= 117,
+	"P9.23"=117,
 	"P9.27"=115,
 	"P9.42"=7
 	}
@@ -59,12 +59,10 @@ analogPinDef={
 
 
 
- run function(setup,main){
+ run function(setup,main)
 
 
-
-
-}end
+end
 
 
 stop function(){
@@ -149,6 +147,17 @@ delayMicroseconds function(us){
 }end
 
 pinmode function(gpio_pin, direction, pull=0){
+
+	if(direction ==INPUT) then
+		if(pull>0) then
+			pull=CONF_PULLUP
+		elseif(pull==0) then
+			pull=CONF_PULL_DISABLE
+		else
+			pull=CONF_PULLDOWN
+		end
+
+
 
 
 }end
@@ -242,78 +251,20 @@ end
 
 
 
-uart_port function(object){
 
-	self.init(self,uart){
+_UART_PORT={}
 
-
-	}end
-
-	self.begin function(self,baud,timeout=1){
-
+function _UART_PORT:begin(baud, timeout=1)
+	local tx_pinmux_filename
+	local this_baud=baud
+end
 
 
 
+function _UART_PORT:available()
 
-	}end
---stops port if open
-	self.stop  function(self) {
-
-
-
-
-	}end
---prints number of bytes currently in recieve buffer
-	self.available function(self) {
-
-
-	}end
-
-	self.read(self) {
-
-
-
-
-	}end
-
-
-
-	self.peak(self) {
-
-
-
-	}end
-
-	self.flush(self) {
-
-
-
-	}end
-
-	self.prints(self,data, base=None){
-
-
-
-
-	}end
-
-	self.println(self, data, base=none){
-
-
-
-	}end
-
-	self.write(self,data){
-
-
-	}end
-
-	self.process(self, data, base){
-
-
-
-
-	}end
+return 1
+end
 
 
 
@@ -322,5 +273,9 @@ uart_port function(object){
 
 
 
+end
 
-}end
+
+
+
+
