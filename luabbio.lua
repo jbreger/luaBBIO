@@ -1,4 +1,3 @@
-require os.clock()
 
 HIGH="HIGH"
 LOW="LOW"
@@ -6,43 +5,7 @@ OUTPUT="OUTPUT"
 INPUT="INPUT"
 pinList={} --needed for unexport
 startTime=os.clock() --needed for milliseconds
-digitalPinDef={
-	"P8.3"=38,
-	"P8.4"=39,
-	"P8.5"=34,
-	"P8.6"=35,
-	"P8.11"=45,
-	"P8.12"=44,
-	"P8.14"=26,
-	"P8.15"=47,
-	"P8.16"=46,
-	"P8.17"=27,
-	"P8.18"=65,
-	"P8.20"=63,
-	"P8.21"=62,
-	"P8.22"=37,
-	"P8.23"=36,
-	"P8.24"=33,
-	"P8.25"=32,
-	"P8.26"=61,
-	"P8.27"=86,
-	"P8.28"=88,
-	"P8.29"=87,
-	"P8.30"=89,
-	"P8.39"=76,
-	"P8.40"=77,
-	"P8.41"=74,
-	"P8.42"=75,
-	"P8.43"=72,
-	"P8.44"=73,
-	"P8.45"=70,
-	"P8.46"=71,
-	"P9.12"=60,
-	"P9.15"=48,
-	"P9.23"=117,
-	"P9.27"=115,
-	"P9.42"=7
-	}
+digitalPinDef={"P8.3"=38,"P8.4"=39,"P8.5"=34,"P8.6"=35,"P8.11"=45,"P8.12"=44,"P8.14"=26,"P8.15"=47,"P8.16"=46,"P8.17"=27,"P8.18"=65,"P8.20"=63,"P8.21"=62,"P8.22"=37,"P8.23"=36,"P8.24"=33,"P8.25"=32,"P8.26"=61,"P8.27"=86,"P8.28"=88,"P8.29"=87,"P8.30"=89,"P8.39"=76,"P8.40"=77,"P8.41"=74,"P8.42"=75,"P8.43"=72,"P8.44"=73,"P8.45"=70,"P8.46"=71,"P9.12"=60,"P9.15"=48,"P9.23"=117,"P9.27"=115,"P9.42"=7}
 
 pinMuxDef = {
 "P8.3"=	"gpmc_ad6",
@@ -209,10 +172,11 @@ function pinUnexport(pin) --helper function for cleanup()
 	fw.close()
 end
 --cleanup function needs work
-function cleanup()
+function cleanup(table,val)
+
 --takes care of stepping through pins that were set withpinMode and unExports them. Prints result
 	function find_key(dicm val)
-		--
+		return [k for k, v in dic.iteritems() if v==val][0]
 	end
 	print ""
 	print "Cleaning up. Unexporting the following pins:"
@@ -226,6 +190,26 @@ function delay(millis)
 	--delay(millis) sleeps the script for a given number of milliseconds
 	time.sleep(millis/1000.0)
 end
+
+function try(f, catch_f)
+	local status, exception = pcall(f)
+	if not status then
+		catch_f(exception)
+	end
+end
+
+function run(setup, main)
+--The main loop; must be passed a setup and a main function.
+--First the setup function will be called once, then the main
+--function wil be continuously until a stop signal is raised,
+--e.g. CTRL-C or a call to the stop() function from within the
+--main function.
+	try(function() setup() while(true) main() end, function(e) cleanup())
+
+end
+
+
+
 
 
 
