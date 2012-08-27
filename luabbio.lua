@@ -246,13 +246,7 @@ function delay(millis)
 	time.sleep(millis/1000.0)
 end
 --try function
-function try(f, catch_f)
-	local status
-	local exception = pcall(f)
-	if not status then
-		catch_f(exception)
-	end
-end
+
 
 function run(setup, main)
 --The main loop; must be passed a setup and a main function.
@@ -260,6 +254,21 @@ function run(setup, main)
 --function wil be continuously until a stop signal is raised,
 --e.g. CTRL-C or a call to the stop() function from within the
 --main function.
+
+--check to see if setup and main are valid
+	local setup_var=assert(setup, "setup function error: nil value")
+	local main_var=assert(main, "main function error: nil value")
+	if (type(setup_var)not=="function") then
+		print("Setup is not a function")
+		break
+	end
+	if (type(main_var) not=="function") then
+		print("main is not a function")
+		break
+	end
+
+
+
 
 end
 
