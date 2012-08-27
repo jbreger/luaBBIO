@@ -218,19 +218,26 @@ end
 
 
 --cleanup function needs work change table
+function find_key(dic,val)
+--Parameters: dic refers to a table of values
+--			: val refers to a input values
+	for v in dicm do
+			if (dicm[v]==val) then
+				return dicm[v]
+			end
+		end
+
+end
+
 function cleanup(table,val)
 
 --takes care of stepping through pins that were set withpinMode and unExports them. Prints result
---k
-	function find_key(dicm val)
-		return [k for k, v in dic.iteritems() if v==val][0]
-	end
 print ""
 print "Cleaning up. Unexporting the following pins:"
-	--for loo is wrong
-	for pin in pinList
+	--for loop is wrong
+	for pin in pinList do
 		pinUnexport(pin)
-		print fund_key(digitalPinDef, pin)
+		print (find_key(digitalPinDef, pin))
 	end
 end
 
@@ -240,7 +247,8 @@ function delay(millis)
 end
 --try function
 function try(f, catch_f)
-	local status, exception = pcall(f)
+	local status
+	local exception = pcall(f)
 	if not status then
 		catch_f(exception)
 	end
@@ -252,7 +260,6 @@ function run(setup, main)
 --function wil be continuously until a stop signal is raised,
 --e.g. CTRL-C or a call to the stop() function from within the
 --main function.
-	try(function() setup() while(true) main() end, function(e) cleanup())
 
 end
 
