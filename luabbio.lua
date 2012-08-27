@@ -127,31 +127,30 @@ function pinMode(pin,directions)
 	-- Sets up pins
 	--Parameters- pin is the pin for the beagle bone
 				--directions is the signal direction
-	-- problem with in statement
+	-- strings are immutable objects in lua consider using a table
 	if (pin == nil) then
 		print ("pinMode error: pin " .. pin .. " is not defined as a digital I/O pin in the pin definition.")
 	else
 		fw=file("/sys/class/gpio/export", "w")
-		fw.write("%d" % (digitalPinDef[pin]))
+		fw.write(digitalPinDef[pin])
 		fw.close()
-		local fileName="/sys/class/gpio/gpio%d/direction" % (digitalPinDef[pin])
+		local fileName=("/sys/class/gpio/gpio"..digitalPinDef[pin].."/direction")
 		fw=file(fileName, "w")
-		if direction ==INPUT then
+		if direction==INPUT then
 			fw.write("in") --Write in the directions
-			muxfile=file("/sys/class/gpio/gpio%d/direction",(digitalPinDef[pin], "w")
+			muxfile=file("/sys/class/gpio/gpio"..digitalPinDef[pin].."/direction")
 			muxfile.write("2F")
-			muxfile.close
+			--muxfile.close
 		else
 			fw.write("out") --write directions
-			muxfile=file("/sys/class/gpio/gpio%d/direction" + (digitalPinDef[pin], "w")
+			muxfile=file("/sys/class/gpio/gpio"..digitalPinDef[pin].."/direction")
 			muxfile.write("7")
-			muxfile.close
-		fw.close()
-		pinList.append(digitalPinDef[pin]) --Keep a list of exported pins so that we can unexport them.
+			--muxfile.close
+
+			fw.close()
+			pinList.append(digitalPinDef[pin]) --Keep a list of exported pins so that we can unexport them.
 		end
 	end
-end
-end
 end
 
 
@@ -160,9 +159,11 @@ end
 
 function digitalWrite(pin,status)
 	--digitalWrite(pin, status) sets a pin HIGH or LOW
-	if digitalPinDef[pin] in pinList
-		local fileName="/sys/class/gpio/gpio%d/value" % (digitalPinDef[pin])
-		fw=file(fileName, "w") --open the pin's value file for writing
+	if (digitalPinDef[pin]==nil) then
+		print ("digitalWrite error: Pin mode for "..pin.." has not been set. Use pinMode(pin, INPUT) first.")
+	else
+	local fileName="/sys/class/gpio/gpio%d/value" % (digitalPinDef[pin])
+	fw=file(fileName, "w") --open the pin's value file for writing
 		if status==HIGH then
 			fw.write("1") --set the pin to high
 		end
@@ -170,50 +171,53 @@ function digitalWrite(pin,status)
 			fw.write("0") --Set the pin to low by writing 0 to its value file
 		end
 		fw.close()
-	else:
-		print "digitalWrite error: Pin mode for " + pin + " has not been set. Use pinMode(pin, INPUT) first."
-end
+	end
 end
 --check pins
 function digitalRead(pin)
 	--digitalRead(pin) returns HIGH or LOW for a given pin.
-	if digitalPinDef[pin] in pinList
-		local fileName= "/sys/class/gpio/gpio%d/value" % (digitalPinDef[pin])
+	if (digitalPinDef[pin]==nil) then
+		print("digitalRead error: Pin mode for "..pin.." has not been set. Use pinMode(pin, OUTPUT) first.")
+		return -1
+	else
+		local fileName=("/sys/class/gpio/gpio"..digitalPinDef[pin].."/value")
 		fw = file(fileName, "r")
 		inData=fw.read()
-		fw.close()
-		if inData="0\n" then
+		--fw.close()
+		if (inData=="0\n") then
 			return LOW
 		end
-		if inData="1\n" then
+		if (inData=="1\n") then
 			return HIGH
 		end
-	else
-		print "digitalRead error: Pin mode for " + pin + " has not been set. Use pinMode(pin, OUTPUT) first."
-		return -1
 	end
 end
 
+
 --check pins
 function analogRead(pin) --analogRead(pin) returns analog value for a given pin.
-	if pin in analogPinDef then
+	if (analogPinDef[pin]==nil) then
+		print ("analogRead error: Pin "..pin .." is not defined as an analog in pin in the pin definition.")
+		return -1
+	else
 		fileName="/sys/devices/platform/tsc/" + (analogPinDef[pin])
 		fw = file(fileName, "r")
 		data = fw.read()
 		fw.close()
 		return data
-	else
-		print "analogRead error: Pin " + pin + " is not defined as an analog in pin in the pin definition."
-		return -1
 	end
+end
+
 
 function pinUnexport(pin) --helper function for cleanup()
 --check pin functions
-	fw=file("/sys/class/gpio/unexport", "w")
-	fw.write("%d" % (pin))
+	fw=file("/sys/class/gpio/unexport")
+	fw.write(pin)
 	fw.close()
 end
---cleanup function needs work
+
+
+--cleanup function needs work change table
 function cleanup(table,val)
 
 --takes care of stepping through pins that were set withpinMode and unExports them. Prints result
@@ -221,8 +225,9 @@ function cleanup(table,val)
 	function find_key(dicm val)
 		return [k for k, v in dic.iteritems() if v==val][0]
 	end
-	print ""
-	print "Cleaning up. Unexporting the following pins:"
+print ""
+print "Cleaning up. Unexporting the following pins:"
+	--for loo is wrong
 	for pin in pinList
 		pinUnexport(pin)
 		print fund_key(digitalPinDef, pin)
