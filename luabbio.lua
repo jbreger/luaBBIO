@@ -119,20 +119,18 @@ pinMuxDef = {
 }
 
 --pin is pin number av is analog value
-analogPinDef={
-	["P9.33"]="ain4",
-	["P9.35"]="ain6",
-	["P9.36"]="ain5",
-	["P9.37"]="ain2",
-	["P9.38"]="ain3",
-	["P9.39"]="ain0",
-	["P9.40"]="ain1",
-	}
+analogPinDef={["P9.33"]="ain4",["P9.35"]="ain6",["P9.36"]="ain5",["P9.37"]="ain2",["P9.38"]="ain3",["P9.39"]="ain0",["P9.40"]="ain1"}
 --check pins
 
 function pinMode(pin,directions)
+
+	-- Sets up pins
+	--Parameters- pin is the pin for the beagle bone
+				--directions is the signal direction
 	-- problem with in statement
-	if (pin in digitalPinDef) then
+	if (pin == nil) then
+		print "pinMode error: pin " + pin + " is not defined as a digital I/O pin in the pin definition."
+	else
 		fw=file("/sys/class/gpio/export", "w")
 		fw.write("%d" % (digitalPinDef[pin]))
 		fw.close()
@@ -151,8 +149,6 @@ function pinMode(pin,directions)
 		fw.close()
 		pinList.append(digitalPinDef[pin]) --Keep a list of exported pins so that we can unexport them.
 		end
-	else
-		print "pinMode error: pin " + pin + " is not defined as a digital I/O pin in the pin definition."
 	end
 end
 end
