@@ -129,7 +129,7 @@ function pinMode(pin,directions)
 				--directions is the signal direction
 	-- problem with in statement
 	if (pin == nil) then
-		print "pinMode error: pin " + pin + " is not defined as a digital I/O pin in the pin definition."
+		print ("pinMode error: pin " .. pin .. " is not defined as a digital I/O pin in the pin definition.")
 	else
 		fw=file("/sys/class/gpio/export", "w")
 		fw.write("%d" % (digitalPinDef[pin]))
@@ -138,7 +138,7 @@ function pinMode(pin,directions)
 		fw=file(fileName, "w")
 		if direction ==INPUT then
 			fw.write("in") --Write in the directions
-			muxfile=file("/sys/class/gpio/gpio%d/direction" +(digitalPinDef[pin], "w")
+			muxfile=file("/sys/class/gpio/gpio%d/direction",(digitalPinDef[pin], "w")
 			muxfile.write("2F")
 			muxfile.close
 		else
