@@ -1,4 +1,6 @@
 
+
+
 HIGH="HIGH"
 LOW="LOW"
 OUTPUT="OUTPUT"
@@ -162,8 +164,8 @@ function digitalWrite(pin,status)
 	if (digitalPinDef[pin]==nil) then
 		print ("digitalWrite error: Pin mode for "..pin.." has not been set. Use pinMode(pin, INPUT) first.")
 	else
-	local fileName="/sys/class/gpio/gpio%d/value" % (digitalPinDef[pin])
-	fw=file(fileName, "w") --open the pin's value file for writing
+		local fileName="/sys/class/gpio/gpio%d/value" % (digitalPinDef[pin])
+		fw=file(fileName, "w") --open the pin's value file for writing
 		if status==HIGH then
 			fw.write("1") --set the pin to high
 		end
@@ -258,18 +260,12 @@ function run(setup, main)
 --check to see if setup and main are valid
 	local setup_var=assert(setup, "setup function error: nil value")
 	local main_var=assert(main, "main function error: nil value")
-	if (type(setup_var)not=="function") then
-		print("Setup is not a function")
-		break
-	end
-	if (type(main_var) not=="function") then
-		print("main is not a function")
-		break
-	end
 
+--run setup function
 
-
-
+--setup_var
+--run main function until CTRL-C
+--main_var
 end
 
 
