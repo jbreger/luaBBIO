@@ -193,7 +193,7 @@ function pinMode(pin,directions)
 			--set the direction to OUT
 			os.execute("echo out"..fileName)
 		else
-		print("direction error")
+			print("direction error"..directions.." is not a proper INPUT or OUTPUT")
 		end
 	end
 end
@@ -207,19 +207,21 @@ function digitalWrite(pin,status)
 	if (digitalPinDef[pin]==nil) then
 		print ("digitalWrite error: Pin mode for "..pin.." has not been set. Use pinMode(pin, INPUT) first.")
 	else
-		local d_pin=digitalPinDef[pin]
-		local fileName="/sys/class/gpio/gpio"..digitalPinDef[pin].."/value"
+		local dpin=digitalPinDef[pin]
+		local fileName=" > /sys/class/gpio/gpio"..dpin.."/value"
 
 		if status==HIGH then
-			fw.write("1") --set the pin to high
+			os.execute("echo 1"..fileName)--set the pin to HIGH
 		end
 		if status==LOW then
-			fw.write("0") --Set the pin to low by writing 0 to its value file
+			os.execute("echo 0"..fileName)--set the pin to LOW
 		end
-		fw.close()
+
 	end
 end
 --check pins
+
+--This looks wrong consider useing io.read
 function digitalRead(pin)
 	--digitalRead(pin) returns HIGH or LOW for a given pin.
 	if (digitalPinDef[pin]==nil) then
@@ -227,7 +229,7 @@ function digitalRead(pin)
 		return -1
 	else
 		local fileName=("/sys/class/gpio/gpio"..digitalPinDef[pin].."/value")
-		fw = file(fileName, "r")
+
 		inData=fw.read()
 		--fw.close()
 		if (inData=="0\n") then
