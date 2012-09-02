@@ -1,6 +1,13 @@
+
 require (os)  --import os library
 require (msleep) --import sleep function library
 
+--=======
+--Lua BBIO vs .5
+--Language: Lua , Lua scripting language by TeCGraf, PUC-Rio http://www.lua.org
+--Version 5.1
+--By James Breger
+--
 
 
 HIGH="HIGH"
@@ -13,6 +20,7 @@ startTime=os.clock() --needed for milliseconds
 --Refer to pages 55,57,60,62 in Beagle Bone reference manual
 digitalPinsdef={
 --pin is pin p_number refers to pin numbers
+
 ["P8.3"]=38,
 ["P8.4"]=39,
 ["P8.5"]=34,
@@ -48,6 +56,40 @@ digitalPinsdef={
 ["P9.23"]=117,
 ["P9.27"]=115,
 ["P9.42"]=7,
+["P8.3"]=38,
+["P8.4"]=39,
+["P8.5"]=34,
+["P8.6"]= 35,
+["P8.11"]= 45,
+["P8.12"]= 44,
+["P8.14"]= 26,
+["P8.15"]= 47,
+["P8.16"]= 46,
+["P8.17"]= 27,
+["P8.18"]= 65,
+["P8.20"]= 63,
+["P8.21"]= 62,
+["P8.22"]= 37,
+["P8.23"]= 36,
+["P8.24"]= 33,
+["P8.25"]= 32,
+["P8.26"]= 61,
+["P8.27"]= 86,
+["P8.28"]= 88,
+["P8.29"]= 87,
+["P8.30"]= 89,
+["P8.39"]= 76,
+["P8.41"]= 74,
+["P8.42"]= 75,
+["P8.43"]= 72,
+["P8.44"]= 73,
+["P8.45"]= 70,
+["P8.46"]= 71,
+["P9.12"]= 60,
+["P9.15"]= 48,
+["P9.23"]= 117,
+["P9.27"]= 115,
+["P9.42"]= 7
 }
 
 
@@ -132,27 +174,26 @@ function pinMode(pin,directions)
 	--Parameters- pin is the pin for the beagle bone
 				--directions is the signal direction
 	-- strings are immutable objects in lua consider using a table
-	if (pin == nil) then
+	if (digitalPinDef[pin] == nil) then
 		print ("pinMode error: pin " .. pin .. " is not defined as a digital I/O pin in the pin definition.")
 	else
-		fw=file("/sys/class/gpio/export", "w")
-		fw.write(digitalPinDef[pin])
-		fw.close()
-		local fileName=("/sys/class/gpio/gpio"..digitalPinDef[pin].."/direction")
-		fw=file(fileName, "w")
-		if direction==INPUT then
-			fw.write("in") --Write in the directions
-			muxfile=file("/sys/class/gpio/gpio"..digitalPinDef[pin].."/direction")
-			muxfile.write("2F")
-			--muxfile.close
-		else
-			fw.write("out") --write directions
-			muxfile=file("/sys/class/gpio/gpio"..digitalPinDef[pin].."/direction")
-			muxfile.write("7")
-			--muxfile.close
+		--Export pin
+		local dpin=digitalPinDef[pin]  --get pin from table
+		local gpio_export_path=" > /sys/class/gpio/export"
+		os.execute("echo "..dpin..gpio_export_path)
+		pinList.append(digitalPinDef[pin]) --Keep a list of exported pins so that we can unexport them.
+		local fileName=(" > /sys/class/gpio/gpio"..dpin.."/direction")
 
-			fw.close()
-			pinList.append(digitalPinDef[pin]) --Keep a list of exported pins so that we can unexport them.
+		if direction==INPUT then
+			 --Set the direction to IN
+
+			os.execute("echo in"..fileName)
+
+		elseif direction==OUTPUT then
+			--set the direction to OUT
+			os.execute("echo out"..fileName)
+		else
+		print("direction error")
 		end
 	end
 end
@@ -166,8 +207,9 @@ function digitalWrite(pin,status)
 	if (digitalPinDef[pin]==nil) then
 		print ("digitalWrite error: Pin mode for "..pin.." has not been set. Use pinMode(pin, INPUT) first.")
 	else
-		local fileName="/sys/class/gpio/gpio%d/value" % (digitalPinDef[pin])
-		fw=file(fileName, "w") --open the pin's value file for writing
+		local d_pin=digitalPinDef[pin]
+		local fileName="/sys/class/gpio/gpio"..digitalPinDef[pin].."/value"
+
 		if status==HIGH then
 			fw.write("1") --set the pin to high
 		end
