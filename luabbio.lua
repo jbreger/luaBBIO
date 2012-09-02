@@ -1,7 +1,3 @@
-
-require (os)  --import os library
-require (msleep) --import sleep function library
-
 --=======
 --Lua BBIO vs .5
 --Language: Lua , Lua scripting language by TeCGraf, PUC-Rio http://www.lua.org
@@ -15,9 +11,11 @@ LOW="LOW"
 OUTPUT="OUTPUT"
 INPUT="INPUT"
 pinList={} --needed for unexport
-startTime=os.clock() --needed for milliseconds
+
 
 --Refer to pages 55,57,60,62 in Beagle Bone reference manual
+
+--think of a way to improve table
 digitalPinsdef={
 --pin is pin p_number refers to pin numbers
 
@@ -221,7 +219,7 @@ function digitalWrite(pin,status)
 end
 --check pins
 
---This looks wrong consider useing io.read
+
 function digitalRead(pin)
 	--digitalRead(pin) returns HIGH or LOW for a given pin.
 	if (digitalPinDef[pin]==nil) then
@@ -229,9 +227,11 @@ function digitalRead(pin)
 		return -1
 	else
 		local fileName=("/sys/class/gpio/gpio"..digitalPinDef[pin].."/value")
+		--set filenName as an input
+		io.input(fileName)
+		--read all of the file
+		local inData=io.read("*all")
 
-		inData=fw.read()
-		--fw.close()
 		if (inData=="0\n") then
 			return LOW
 		end
@@ -242,7 +242,7 @@ function digitalRead(pin)
 end
 
 
---check pins
+--check analogRead for correct code.
 function analogRead(pin) --analogRead(pin) returns analog value for a given pin.
 	if (analogPinDef[pin]==nil) then
 		print ("analogRead error: Pin "..pin .." is not defined as an analog in pin in the pin definition.")
@@ -259,9 +259,13 @@ end
 
 function pinUnexport(pin) --helper function for cleanup()
 --check pin functions
-	fw=file("/sys/class/gpio/unexport")
-	fw.write(pin)
-	fw.close()
+	local dpin=pin  --localize pin
+	--the typical unexport command
+	local gpio_export_path=" > /sys/class/gpio/unexport"
+	--execute command
+
+	os.execute("echo "..dpin..gpio_export_path)
+
 end
 
 
@@ -269,9 +273,9 @@ end
 function find_key(dic,val)
 --Parameters: dic refers to a table of values
 --			: val refers to a input values
-	for v in dicm do
-			if (dicm[v]==val) then
-				return dicm[v]
+	for key,value in pairs(dic) do
+			if (value==val) then
+				return key
 			end
 		end
 
@@ -283,16 +287,29 @@ function cleanup(table,val)
 print ""
 print "Cleaning up. Unexporting the following pins:"
 	--for loop is wrong
-	for pin in pinList do
+	for index,pin in ipairs(pinList) do
 		pinUnexport(pin)
 		print (find_key(digitalPinDef, pin))
 	end
 end
 
+--create rounding function for sleep
+--see http://lua-users.org/wiki/SimpleRound
+
+function round(num, idp)
+  return tonumber(string.format("%." .. (idp or 0) .. "f", num))
+end
+
+
 function delay(millis)
 	--delay(millis) sleeps the script for a given number of milliseconds
-	time.sleep(millis/1000.0)
+	--uses linux sleep command
+	--use round function to round output
+	local secs=round((millis/1000.0), 3)
+	os.execute("sleep " ..secs)
+
 end
+
 --try function
 
 
