@@ -281,7 +281,7 @@ function find_key(dic,val)
 
 end
 
-function cleanup(table,val)
+function cleanup()
 
 --takes care of stepping through pins that were set withpinMode and unExports them. Prints result
 print ""
@@ -321,17 +321,25 @@ function run(setup, main)
 --main function.
 
 --check to see if setup and main are valid
-	local setup_var=assert(setup, "setup function error: nil value")
-	local main_var=assert(main, "main function error: nil value")
+local setup_var=assert(setup, "setup function error: nil value")
+local main_var=assert(main, "main function error: nil value")
 
---run setup function
+setup_var
 
 --setup_var
---run main function until CTRL-C
---main_var
+--for right now use ^C to end program
+repeat
+	main_var
+until a=1
 end
 
 
+
+--[[
+1) Think of a better data structure for luaBBIO pin information.  On solid table instead of three.
+2) Find a way to do keyboard interupts. Perhaps do something with the beaglebone input button.
+3) Add PWM outputs
+--]]
 
 
 
